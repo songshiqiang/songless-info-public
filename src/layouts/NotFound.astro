@@ -1,0 +1,16 @@
+---
+import Layout from './Layout.astro';
+import { content } from '../i18n/content';
+import { localePath, type Locale } from '../i18n/locales';
+
+const locale = (Astro.props.locale ?? 'en') as Locale;
+const c = content[locale].notFound;
+---
+
+<Layout locale={locale} title={c.title} description={c.description} notFound>
+  <main class="wrap narrow article">
+    <h1>{c.h1}</h1>
+    <p class="lead">{c.lead}</p>
+    <p><a class="btn btn-primary" href={localePath(locale, '/')}>{c.cta}</a></p>
+  </main>
+</Layout>

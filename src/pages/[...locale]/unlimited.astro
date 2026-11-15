@@ -1,0 +1,97 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import UnlimitedGame from '../../components/UnlimitedGame';
+import { content, uiStrings } from '../../i18n/content';
+import { DATE_LOCALE, localePaths, localizeHtml, type Locale } from '../../i18n/locales';
+import { breadcrumbJsonLd, faqJsonLd, videoGameJsonLd } from '../../data/schema';
+import { library } from '../../data/songs';
+import { CHARTS, type Decade, type Genre } from '../../lib/game';
+
+export function getStaticPaths() {
+  return localePaths();
+}
+const locale = Astro.props.locale as Locale;
+const c = content[locale].unlimited;
+const ui = uiStrings[locale];
+const html = (s: string) => localizeHtml(s, locale);
+const n = (x: number) => x.toLocaleString(DATE_LOCALE[locale]);
+
+const statTables = [
+  { head: c.stats.decade, rows: library.decades.map(([d, count]) => [ui.decadesShort[d as Decade], count] as const) },
+  { head: c.stats.genre, rows: library.genres.map(([g, count]) => [ui.genres[g as Genre], count] as const) },
+  { head: c.stats.chart, rows: library.charts.map(([, count], i) => [ui.charts[CHARTS[i]], count] as const) },
+  { head: c.stats.artist, rows: library.topArtists }
+];
+// Cited works keep their original titles in every language.
+const sources = [
+  { text: 'Schellenberg, Iverson & McKinnon (1999). Name that tune: Identifying popular recordings from brief excerpts. Psychonomic Bulletin & Review, 6(4), 641–646.', href: 'https://sites.utm.utoronto.ca/sites/sites.utm.utoronto.ca.glenn_website/files/download/SchellenbergPB%26R1999.pdf' },
+  { text: 'Association for Psychological Science. Song Recognition, on Krumhansl (2010), Plink: Thin slices of music, Music Perception.', href: 'https://www.psychologicalscience.org/observer/song-recognition' },
+  { text: 'The Ohio State University (2017). Has music streaming killed the instrumental intro? On Léveillé Gauvin, Musicae Scientiae.', href: 'https://news.osu.edu/has-music-streaming-killed-the-instrumental-intro/' },
+  { text: 'Wang (2003). An Industrial-Strength Audio Search Algorithm. ISMIR.', href: 'https://www.princeton.edu/~cuff/ele201/files/Wang03-shazam.pdf' },
+  { text: 'CDM (2022). Shazam is 20 years old.', href: 'https://cdm.link/shazam-is-20-years-old-history-trivia-and-tips/' },
+  { text: 'Wikipedia. Name That Tune.', href: 'https://en.wikipedia.org/wiki/Name_That_Tune' },
+  { text: 'Fortune (2023). Spotify is shutting down Heardle.', href: 'https://fortune.com/2023/04/14/spotify-shutting-down-heardle' }
+];
+---
+
+<Layout
+  locale={locale}
+  title={c.title}
+  description={c.description}
+  jsonLd={[videoGameJsonLd(locale, c.name, '/unlimited', c.description), breadcrumbJsonLd(locale, c.name, '/unlimited'), faqJsonLd(locale, c.faq)]}
+  preload={['/data/pool.json']}
+>
+  <main id="play" class="wrap narrow game-section">
+    <UnlimitedGame client:only="react">
+      <div slot="fallback" class="game-loading">{c.loading}</div>
+    </UnlimitedGame>
+  </main>
+
+  <section class="wrap hero hero-below" aria-label={c.aria}>
+    <h1>{c.h1}</h1>
+    <p class="hero-tagline">{c.tagline}</p>
+    <p class="hero-lead">{c.lead}</p>
+  </section>
+
+  <section class="wrap narrow section guide" style="padding-top: 0">
+    <Fragment set:html={html(c.how)} />
+    <div class="guide-grid">
+      {
+        statTables.map((t) => (
+          <table>
+            <thead>
+              <tr><th>{t.head}</th><th class="num">{c.stats.songs}</th></tr>
+            </thead>
+            <tbody>
+              {t.rows.map(([label, count]) => (
+                <tr><td>{label}</td><td class="num">{n(count)}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        ))
+      }
+    </div>
+    <Fragment set:html={html(c.tips)} />
+
+    <h2>{c.faqTitle}</h2>
+    <div class="faq">
+      {
+        c.faq.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+    <p class="muted" set:html={html(c.faqFoot)} />
+    <Fragment set:html={html(c.deep)} />
+
+    <h2 id="sources">{c.sourcesTitle}</h2>
+    <ol class="sources">
+      {sources.map((x) => (
+        <li><a href={x.href} rel="noopener" target="_blank">{x.text}</a></li>
+      ))}
+    </ol>
+  </section>
+</Layout>

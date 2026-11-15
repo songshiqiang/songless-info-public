@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { content } from '../../i18n/content';
+import { localePaths, localizeHtml, type Locale } from '../../i18n/locales';
+
+export function getStaticPaths() {
+  return localePaths();
+}
+const locale = Astro.props.locale as Locale;
+const c = content[locale].contact;
+---
+
+<Layout locale={locale} title={c.title} description={c.description}>
+  <main class="wrap narrow article" set:html={localizeHtml(c.body, locale)} />
+</Layout>

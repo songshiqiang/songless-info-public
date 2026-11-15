@@ -1,0 +1,42 @@
+// Cloudflare Workers deploy: the Astro build output as static assets, plus a small
+// Worker for the API: Songless Party rooms (/api/party/* and room links /party/ABCD)
+// and the Songless Unlimited leaderboard (/api/leaderboard).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "songless-info",
+  "compatibility_date": "2026-10-01",
+  // Build here too, so the deploy works even if the dashboard build command is empty.
+  "build": { "command": "npm run build" },
+  "main": "./src/worker/index.ts",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/party/*", "/zh/party/*", "/ru/party/*", "/pt-br/party/*"],
+    "not_found_handling": "404-page"
+  },
+  // Required for the PR preview deploys (`wrangler preview`) that Workers Builds runs.
+  // Previews only get the bindings listed here; each preview has its own empty rooms and leaderboard.
+  "previews": {
+    "durable_objects": {
+      "bindings": [
+        { "name": "ROOMS", "class_name": "PartyRoom" },
+        { "name": "DIRECTORY", "class_name": "RoomDirectory" },
+        { "name": "LEADERBOARD", "class_name": "Leaderboard" }
+      ]
+    }
+  },
+  // One Durable Object per party room, one that lists public rooms, and one for the
+  // leaderboard. All SQLite-backed, so they work on the Workers Free plan.
+  "durable_objects": {
+    "bindings": [
+      { "name": "ROOMS", "class_name": "PartyRoom" },
+      { "name": "DIRECTORY", "class_name": "RoomDirectory" },
+      { "name": "LEADERBOARD", "class_name": "Leaderboard" }
+    ]
+  },
+  // Migrations run in list order and each tag runs once; add new ones at the end.
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["PartyRoom", "RoomDirectory"] },
+    { "tag": "leaderboard-v1", "new_sqlite_classes": ["Leaderboard"] }
+  ]
+}

@@ -1,0 +1,11 @@
+---
+import NotFound from '../../layouts/NotFound.astro';
+import { LOCALES } from '../../i18n/locales';
+
+// Each language's folder gets its own not-found page; Cloudflare serves the nearest one.
+export function getStaticPaths() {
+  return LOCALES.filter((locale) => locale !== 'en').map((locale) => ({ params: { locale }, props: { locale } }));
+}
+---
+
+<NotFound locale={Astro.props.locale} />

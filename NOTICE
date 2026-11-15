@@ -1,0 +1,48 @@
+songless.info
+Copyright (C) 2026 songless.info contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License in LICENSE for
+more details.
+
+---
+
+## Data and third-party content
+
+The AGPL above covers the source code in this repository. The data files carry
+the terms of where the data came from.
+
+**scripts/charts.json** — Billboard Year-End Hot 100 rankings from 1980 on,
+parsed from the English Wikipedia article for each year
+(<https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_the_year>).
+Wikipedia text is licensed CC BY-SA 4.0
+(<https://creativecommons.org/licenses/by-sa/4.0/>). This derived data is
+distributed under CC BY-SA 4.0, not the AGPL; keep this attribution and the same
+licence if you redistribute it.
+
+**src/data/songs.json, src/data/schedule.json, src/data/schedule-world.json,
+scripts/misses.json, scripts/first-years.json** — song titles, artist names,
+years and genres are factual metadata. Track ids, preview URLs and artwork URLs
+point at Apple's iTunes preview service. The recordings and cover art belong to
+the respective rights holders and to Apple; this repository grants no licence to
+them and does not redistribute them — the browser streams previews from Apple's
+servers at play time. If you deploy this project, review Apple's terms for the
+iTunes Search API and for iTunes preview content first.
+
+**scripts/world-cache.json** is a local scrape cache. It is not part of this
+repository (see .gitignore) and is rebuilt by `npm run songs:world`.
+
+**Song and artist names** are used for identification only.
+
+## Trademarks and affiliation
+
+This project is not affiliated with, endorsed by, or connected to Apple,
+Billboard, KKBOX, Deezer, Google, Cloudflare, or any other company, product or
+service — including any song-guessing game that happens to share a similar name.
+All trademarks belong to their respective owners.

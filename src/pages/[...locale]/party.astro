@@ -1,0 +1,50 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PartyGame from '../../components/PartyGame';
+import { content } from '../../i18n/content';
+import { localePaths, localizeHtml, type Locale } from '../../i18n/locales';
+import { breadcrumbJsonLd, faqJsonLd, videoGameJsonLd } from '../../data/schema';
+
+export function getStaticPaths() {
+  return localePaths();
+}
+const locale = Astro.props.locale as Locale;
+const c = content[locale].party;
+const html = (s: string) => localizeHtml(s, locale);
+---
+
+<Layout
+  locale={locale}
+  title={c.title}
+  description={c.description}
+  jsonLd={[videoGameJsonLd(locale, c.name, '/party', c.description), breadcrumbJsonLd(locale, c.name, '/party'), faqJsonLd(locale, c.faq)]}
+>
+  <main id="play" class="wrap narrow game-section">
+    <PartyGame client:only="react">
+      <div slot="fallback" class="game-loading">{c.loading}</div>
+    </PartyGame>
+  </main>
+
+  <section class="wrap hero hero-below" aria-label={c.aria}>
+    <h1>{c.h1}</h1>
+    <p class="hero-tagline">{c.tagline}</p>
+    <p class="hero-lead">{c.lead}</p>
+    <p class="muted small">{c.meta}</p>
+  </section>
+
+  <section class="wrap narrow section guide" style="padding-top: 0">
+    <Fragment set:html={html(c.guide)} />
+    <h2>{c.faqTitle}</h2>
+    <div class="faq">
+      {
+        c.faq.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+    <p class="muted" set:html={html(c.faqFoot)} />
+  </section>
+</Layout>

@@ -1,0 +1,44 @@
+{
+  "name": "songless-info",
+  "version": "1.0.0",
+  "description": "A free daily song guessing game: five clips a day per chart, unlimited mode, multiplayer party rooms. Astro + React + Cloudflare Workers.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest run",
+    "cards:daily": "node scripts/daily-cards.mjs",
+    "charts:fetch": "node scripts/fetch-charts.mjs",
+    "songs:resolve": "node scripts/resolve-previews.mjs && node scripts/fetch-genres.mjs && node scripts/schedule.mjs",
+    "songs:genres": "node scripts/fetch-genres.mjs",
+    "songs:years": "node scripts/fetch-first-years.mjs",
+    "songs:world": "node scripts/fetch-world.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/songshiqiang/songless.info.git"
+  },
+  "author": "songless.info contributors",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/songshiqiang/songless.info/issues"
+  },
+  "homepage": "https://github.com/songshiqiang/songless.info#readme",
+  "dependencies": {
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^5.18.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261102.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "opencc-js": "^1.0.5",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.156.1"
+  },
+  "type": "module"
+}

@@ -1,0 +1,112 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DailyGame from '../../components/DailyGame';
+import { content } from '../../i18n/content';
+import { DEFAULT_CHART, localePath, localePaths, localizeHtml, type Locale } from '../../i18n/locales';
+import { faqJsonLd, howToJsonLd, organizationJsonLd, videoGameJsonLd, websiteJsonLd } from '../../data/schema';
+import { ladderDate } from '../../lib/game';
+
+export function getStaticPaths() {
+  return localePaths();
+}
+const locale = Astro.props.locale as Locale;
+const c = content[locale].home;
+const html = (s: string) => localizeHtml(s, locale);
+
+// Day-1 timestamp, so an inline script can preload today's ladder before React loads.
+const launch = ladderDate(1).getTime();
+const defaultChart = DEFAULT_CHART[locale];
+
+const modeLook = [
+  { color: 'var(--lime)', href: '#play' },
+  { color: 'var(--orange)', href: localePath(locale, '/unlimited') },
+  { color: 'var(--blue)', href: localePath(locale, '/party') }
+];
+const stepColors = ['var(--lime)', 'var(--orange)', 'var(--blue)'];
+
+const jsonLd = [
+  websiteJsonLd(locale, c.title),
+  organizationJsonLd,
+  videoGameJsonLd(locale, c.title, locale === 'en' ? '/' : '', c.description),
+  howToJsonLd(locale, c.howToName, c.howTo),
+  faqJsonLd(locale, c.faq)
+];
+---
+
+<Layout locale={locale} title={c.title} description={c.description} jsonLd={jsonLd}>
+  <script slot="head" is:inline define:vars={{ launch, defaultChart }}>
+    try {
+      var q = new URLSearchParams(location.search);
+      var n = q.get('ladder');
+      var c = q.get('chart') || JSON.parse(localStorage.getItem('songless:daily-chart') || '""') || defaultChart;
+      var d = new Date();
+      var today = Math.floor((Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) - launch) / 864e5) + 1;
+      var l = document.createElement('link');
+      l.rel = 'preload';
+      l.as = 'fetch';
+      l.crossOrigin = 'anonymous';
+      l.href = '/data/ladders/' + (/^(BR|RU|ZH)$/.test(c) ? c + '/' : '') + (n && +n >= 1 && +n <= today ? +n : today) + '.json';
+      document.head.appendChild(l);
+    } catch (e) {}
+  </script>
+  <main id="play" class="wrap narrow game-section">
+    <DailyGame client:only="react">
+      <div slot="fallback" class="game-loading">{c.loading}</div>
+    </DailyGame>
+  </main>
+
+  <section class="wrap hero hero-below" aria-label={c.aria}>
+    <h1>{c.h1}</h1>
+    <p class="hero-tagline">{c.tagline}</p>
+    <p class="hero-lead">{c.lead}</p>
+    <p class="muted small" set:html={html(c.meta)} />
+  </section>
+
+  <section id="modes" class="band">
+    <div class="wrap section">
+      <h2>{c.modesTitle}</h2>
+      <div class="mode-grid">
+        {
+          c.modes.map((m, i) => (
+            <a class="mode-card" href={modeLook[i].href}>
+              <span class="eyebrow" style={`color: ${modeLook[i].color}`}>{m.tag}</span>
+              <h3>{m.title}</h3>
+              <p>{m.body}</p>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="wrap section guide">
+    <h2>{c.howTitle}</h2>
+    <div class="steps">
+      {
+        c.steps.map((s, i) => (
+          <div class="step">
+            <span class="step-num" style={`color: ${stepColors[i]}`}>{s.num}</span>
+            <h3>{s.title}</h3>
+            <p>{s.body}</p>
+          </div>
+        ))
+      }
+    </div>
+    <Fragment set:html={html(c.guide)} />
+  </section>
+
+  <section id="faq" class="wrap section" style="padding-top: 0">
+    <h2>{c.faqTitle}</h2>
+    <div class="faq">
+      {
+        c.faq.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+    <p class="muted" set:html={html(c.faqFoot)} />
+  </section>
+</Layout>

@@ -1,0 +1,23 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { LEGAL_UPDATED } from '../../data/site';
+import { content } from '../../i18n/content';
+import { DATE_LOCALE, localePaths, localizeHtml, type Locale } from '../../i18n/locales';
+
+export function getStaticPaths() {
+  return localePaths();
+}
+const locale = Astro.props.locale as Locale;
+const c = content[locale].privacy;
+const { legal } = content[locale];
+const updated = new Date(`${LEGAL_UPDATED}T00:00:00Z`).toLocaleDateString(DATE_LOCALE[locale], { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+---
+
+<Layout locale={locale} title={c.title} description={c.description}>
+  <main class="wrap narrow article">
+    <h1>{c.h1}</h1>
+    <p class="muted">{legal.updated(updated)}</p>
+    {legal.note && <p class="muted small" set:html={legal.note.replace('{en}', '/privacy')} />}
+    <Fragment set:html={localizeHtml(c.body, locale)} />
+  </main>
+</Layout>
